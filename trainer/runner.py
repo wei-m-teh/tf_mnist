@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import argparse
 import os, sys, time
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
-from trainer import mnist
+import mnist
 
 def fill_feed_dict(data_set, images_pl, labels_pl):
   """Fills the feed_dict for training the given step.
