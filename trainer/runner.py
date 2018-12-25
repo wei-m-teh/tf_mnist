@@ -135,7 +135,6 @@ def run_training():
                                      feed_dict=feed_dict)
 
             duration = time.time() - start_time
-
             # Write the summaries and print an overview fairly often.
             if step % 100 == 0:
                 # Print status to stdout.
