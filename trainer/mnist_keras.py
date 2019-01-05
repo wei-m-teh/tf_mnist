@@ -35,17 +35,17 @@
 # Tutorial using tensorflow with Keras
 
 # TensorFlow and tf.keras
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.python.keras import backend as K
-import argparse
+from tensorflow.examples.tutorials.mnist import input_data
+import keras
+from keras import backend as K
 
 
 # Helper libraries
 import numpy as np
 import os, sys
-from os.path import join
-from tensorflow.examples.tutorials.mnist import input_data
+from os import makedirs
+from os.path import exists, join
+import argparse
 
 NUM_CLASSES = 10
 
@@ -79,7 +79,7 @@ def train():
     print(mnist.validation.images.shape)
 
     model = nn_layers()
-    model.compile(optimizer=tf.train.AdamOptimizer(),
+    model.compile(optimizer=keras.optimizers.Adam(),
                   loss=keras.losses.categorical_crossentropy,
                   metrics=['accuracy'])
     model.summary()
@@ -92,6 +92,7 @@ def train():
                                               embeddings_freq=1,
                                               embeddings_data=mnist.test.images,
                                               embeddings_layer_names=['features'],
+                                              embeddings_metadata='metadata.tsv',
                                               histogram_freq=1,
                                               write_graph=True,
                                               write_grads=True,
@@ -99,7 +100,7 @@ def train():
     tensorboard.sess = K.get_session()
     test_imgs = mnist.test.images.astype('float32')
     test_labels = mnist.test.labels.astype('float32')
-    model.fit(mnist.train.images, mnist.train.labels, validation_data=(test_imgs, test_labels), epochs=5, batch_size=FLAGS.batch_size, callbacks=[ tensorboard ])
+    model.fit(mnist.train.images, mnist.train.labels, validation_data=(test_imgs, test_labels), epochs=2, batch_size=FLAGS.batch_size, callbacks=[ tensorboard ])
     val_loss, val_acc = model.evaluate(mnist.validation.images, mnist.validation.labels)
     print("validation loss: {}, validation accuracy: {}".format(val_loss, val_acc))
     return model, mnist
@@ -111,12 +112,10 @@ def predict(model, test_images):
     print(np.argmax(predictions[0]))
 
 def main(_):
-    if tf.gfile.Exists(FLAGS.log_dir):
-        tf.gfile.DeleteRecursively(FLAGS.log_dir)
-    tf.gfile.MakeDirs(FLAGS.log_dir)
-    with tf.Graph().as_default():
-        model, images = train()
-        predict(model, images.test.images)
+    if not exists(FLAGS.log_dir):
+        makedirs(FLAGS.log_dir)
+    model, images = train()
+    predict(model, images.test.images)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -144,6 +143,6 @@ if __name__ == "__main__":
     FLAGS, unparsed = parser.parse_known_args()
     # argument argv here is only passing the 'unparsed arguments to the function. This step is actually redundant because
     # the in main function, argv is effectively ignored.
-    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    main([sys.argv[0]] + unparsed)
 
 
